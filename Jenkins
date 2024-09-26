@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+
+    environment{
+        PYTHON_ENV = 'venv'
+
+    }
+
+    stages{
+        //Stage 1: Clone the repository
+        stage('Checkout'){
+            Steps{
+                echo 'Cloning Repository...'
+                git branch: 'main', url:"https://github.com/reigen002/my--python-app.git"
+
+            } 
+        }
+    //stage 2:set up the python env
+        steps{
+            echo 'Setting up the python env...'
+            sh''' 
+                python3 -m venv${PYTHON_ENV}
+                source ${PYTHON_ENV}/bin/activate
+                pip install -r requirements.txt
+            '''
+        }
+
+    }
+    //Stage 3:Run the test
+    stage('Run Tests'){
+        steps{
+            echo'Running unit tests...'
+            sh '''
+            source ${PYTHON_ENV}/bin/activate
+            pytest tests/
+            '''
+            }
+    }
+    //Stage 4:Deploy(this could be to a local http server, for example)
+    stage('Deploy'){
+        steps{
+            echo 'Developing application...'
+            // in this example , we'll simulate deployment by copying the code to a server directory
+            sh'''
+            cp-r*/path/to/local/http/server/root/
+            '''
+
+        }
+    }
+}
+post {
+    always{
+        echo 'Cleaning up workspace...'
+        cleanWs()     // Clean the workspace after the pipeline execution
+    }
+    success{
+        echo 'Pipeline completed successfully!'
+
+    }
+    failure{
+        echo 'pipeline failed'
+        
+
+    }
+}
