@@ -1,65 +1,40 @@
 pipeline {
     agent any
-
-    environment{
-        PYTHON_ENV = 'venv'
-
-    }
-
-    stages{
-        //Stage 1: Clone the repository
-        stage('Checkout'){
-            Steps{
-                echo 'Cloning Repository...'
-                git branch: 'main', url:"https://github.com/reigen002/my--python-app.git"
-
-            } 
-        }
-    //stage 2:set up the python env
-        steps{
-            echo 'Setting up the python env...'
-            sh''' 
-                python3 -m venv${PYTHON_ENV}
-                source ${PYTHON_ENV}/bin/activate
-                pip install -r requirements.txt
-            '''
-        }
-
-    }
-    //Stage 3:Run the test
-    stage('Run Tests'){
-        steps{
-            echo'Running unit tests...'
-            sh '''
-            source ${PYTHON_ENV}/bin/activate
-            pytest tests/
-            '''
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout code from Git
+                git url: 'Your url' 
             }
-    }
-    //Stage 4:Deploy(this could be to a local http server, for example)
-    stage('Deploy'){
-        steps{
-            echo 'Developing application...'
-            // in this example , we'll simulate deployment by copying the code to a server directory
-            sh'''
-            cp-r*/path/to/local/http/server/root/
-            '''
-
+        }
+        stage('Setup Environment') {
+            steps {
+                echo "Creating virtual environment..."
+                bat 'C:\Users\MY PC\AppData\Local\Microsoft\WindowsApps\python.exe -m venv venv'  // Use double backslashes
+                echo "Activating virtual environment..."
+                bat 'call venv\\Scripts\\activate.bat'  // This line is fine as is
+                echo "Installing dependencies..."
+                bat 'C:\\Users\\Windows\\AppData\\Local\\Programs\\Python\\Python312\\Scripts\\pip.exe install -r requirements.txt'  // Use double backslashes
+            }
+        }
+        stage('Run Tests') {
+            steps {
+                echo "Running tests..."
+                // Add your testing commands here, for example:
+                // bat 'pytest'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo "Deploying application..."
+                // Add your deployment commands here
+            }
         }
     }
-}
-post {
-    always{
-        echo 'Cleaning up workspace...'
-        cleanWs()     // Clean the workspace after the pipeline execution
-    }
-    success{
-        echo 'Pipeline completed successfully!'
-
-    }
-    failure{
-        echo 'pipeline failed'
-        
-
+    post {
+        always {
+            echo "Cleaning up workspace..."
+            cleanWs()
+        }
     }
 }
